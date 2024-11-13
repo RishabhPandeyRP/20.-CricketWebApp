@@ -1,26 +1,50 @@
-import React, { useState } from 'react';
+// import { useParams } from 'react-router-dom';
+// const ResetPassword = ()=>{
+//     const { token } = useParams();
+
+//     return(
+//         <div className="w-full h-full flex flex-col justify-center items-center gap-7">
+//             <span>
+//                 {token}
+//             </span>
+//             <input type="password" className="border border-blue-500 w-[60%] h-[60px]"/>
+
+//             <button className="w-[60%] rounded-lg py-3 bg-blue-400 text-white">Reset</button>
+//         </div>
+//     )
+// }
+
+// export default ResetPassword;
+
+
+
+import React, { useEffect, useState } from 'react';
 import rightArr from "../assets/Vector.svg";
 import heroImg from "../assets/image 1.png";
-import googleImage from "../assets/Vector (4).svg";
+import { useParams } from 'react-router-dom';
 import dsgnElem from "../assets/IPL_Auction_SIGN_UP__2_-removebg-preview 1.svg";
 import { useNavigate } from "react-router-dom"
 import toast from 'react-hot-toast';
 
-const SignUp = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
+const ResetPassword = () => {
+    // const [username, setUsername] = useState('');
+    const { token, email } = useParams();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    async function registerUser(data) {
+    useEffect(() => {
+        console.log("from reset page : ", token, email)
+    })
+
+    async function ChangePasswordCall(data) {
         setLoading(true);
-        console.log("data is : ", data);
+        //console.log("data is : " , data);
 
         try {
-            let url = "https://server.rishabh17704.workers.dev/api/users/register";
+            let url = "https://server.rishabh17704.workers.dev/api/resetPass";
             const response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -43,11 +67,11 @@ const SignUp = () => {
             }
 
             if (finalRes.status === 201) {
-                console.log(finalRes);
+                console.log("New password ", finalRes.user.password);
                 //dispatch(signupSuccess(finalRes.user));
-                localStorage.setItem("userId", finalRes.user.userId)
-                toast.success("submitted successfully")
-                return navigate("/login")
+                //localStorage.setItem("userId" , finalRes.user.userId)
+                toast.success("Password Changed Successfully")
+                //return navigate("/login")
             }
             else {
                 //dispatch(authFailure("signup failed"));
@@ -59,14 +83,14 @@ const SignUp = () => {
         } catch (error) {
             //dispatch(authFailure("signup failed"));
             console.log("some error occured", error);
-            toast.error("Some error occured");
+            toast.error(error.message);
             setLoading(false);
         }
     }
 
     const handleSignUp = () => {
         // Form validation
-        if (!username || !email || !password || !confirmPassword) {
+        if (!password || !confirmPassword) {
             setErrorMessage('All fields are required.');
             return;
         }
@@ -76,18 +100,13 @@ const SignUp = () => {
             return;
         }
 
-        // Additional validation for email format (basic)
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(email)) {
-            setErrorMessage('Please enter a valid email address.');
-            return;
-        }
 
         setErrorMessage(''); // Clear any previous error message
         // Logic for handling sign up (API call or other)
-        const userDetails = { username, email, password };
-        registerUser(userDetails);
-        console.log('User Details:', userDetails);
+        const userDetails = { password, token, email };
+        //registerUser(userDetails);
+        //console.log('User Details:', userDetails);
+        ChangePasswordCall(userDetails);
     };
 
     return (
@@ -98,7 +117,7 @@ const SignUp = () => {
                     <img src={rightArr} alt="" className="w-[20px] h-[25px]" onClick={() => navigate(-1)} />
                 </div>
                 <div className="text-center flex justify-center items-center font-bold text-[18px] border-red-500 w-[97%] text-[#1F41BB]">
-                    Sign Up
+                    Reset Password
                 </div>
             </div>
 
@@ -113,20 +132,6 @@ const SignUp = () => {
             {/* form */}
             <div className="flex flex-col justify-center items-center mx-auto border-green-500 w-[90%] -mt-5 gap-5">
                 <div className="flex flex-col gap-5 w-[95%]">
-                    <input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="border border-black rounded-lg h-[45px] bg-white z-10 px-3"
-                    />
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="border border-black rounded-lg h-[45px] bg-white z-10 px-3"
-                    />
                     <input
                         type="password"
                         placeholder="Password"
@@ -152,33 +157,19 @@ const SignUp = () => {
                     loading ? <button
                         
                         className="w-[95%] bg-[#1F41BB] text-white py-3 rounded-lg font-semibold text-[18px] opacity-50"
-
                     >
-                        Sign Up
+                        Reset
                     </button> :
                         <button
                             onClick={handleSignUp}
                             className="w-[95%] bg-[#1F41BB] text-white py-3 rounded-lg font-semibold text-[18px]"
-
                         >
-                            Sign Up
+                            Reset
                         </button>
                 }
 
 
 
-                <span className="mr-2 font-semibold text-[14px] flex gap-2">
-                    <span>Already Signed Up ? </span>
-                    <span className="text-[#1F41BB]" onClick={() => { return navigate("/login") }}>Log In</span>
-                </span>
-
-                <span className="mr-2 text-[#1F41BB] font-semibold text-[14px] flex gap-2">
-                    <span>or continue with</span>
-                </span>
-
-                <div className="border p-2 rounded-md">
-                    <img src={googleImage} alt="" className="w-[25px] h-[25px]" />
-                </div>
             </div>
 
             <div>
@@ -188,4 +179,4 @@ const SignUp = () => {
     );
 };
 
-export default SignUp;
+export default ResetPassword;

@@ -5,6 +5,8 @@ import SignUp from './pages/SignUp';
 import ForgotPassPage from './pages/ForgotPassPage';
 import toast, { Toaster } from 'react-hot-toast';
 import UnderConstruction from './pages/UnderConstruction';
+import ResetPassword from './pages/ResetPassword';
+import Splash from './pages/Splash';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/fpp" element={<ForgotPassPage />} />
+        <Route path="/resetpass/:email/:token" element={<ResetPassword></ResetPassword>} />
+        <Route path="/splash" element={<Splash></Splash>} />
       </Routes>
       <Toaster></Toaster>
     </div>

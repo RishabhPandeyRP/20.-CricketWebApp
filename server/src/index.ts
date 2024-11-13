@@ -123,11 +123,19 @@ app.post("/api/tokenVerify" , async(c)=>{
   try {
     const {token} = await c.req.json();
     const secret = 'mySecretKey'
-    const verification = await verify(token , secret)
-    return c.json({
-      status:201,
-      verification
-    })
+    
+    try {
+      const verification = await verify(token , secret)
+      return c.json({
+        status:201,
+        verification
+      })
+    } catch (error) {
+      return c.json({
+        message : "Verification failed"
+      })
+    }
+    
   } catch (error:any) {
     return c.json({
       name : error.name,
@@ -174,6 +182,124 @@ app.post('/api/users/register', async (c) => {
 
   }
 });
+
+app.get("/api/users/getAll" , async(c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  try {
+    const users = await prisma.user.findMany({
+      include : {
+        auctions  :true,
+        participatedIn :true,
+        ownedTeams  :true,
+        notifications :true,
+        adminActions  :true,
+        bids    :true,  
+      }
+    });
+
+    return c.json(users , 200)
+  } catch (error:any) {
+    return c.json({
+      msg : "Something went wrong",
+      error : error.message
+    } , 401)
+  }
+})
+
+// api for reset link generation
+app.post('/api/resetLink' , async(c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  try {
+    const {email} = await c.req.json();
+
+    const user = await prisma.user.findUnique({
+      where : {email}
+    })
+
+    if(user === null){
+      return c.json({
+        status : 404,
+        msg : "User Not found"
+      },404)
+    }
+
+    const payload = {
+      email,
+      exp: Math.floor(Date.now() / 1000) + 60 * 120, // Token expires in 30 minutes
+    }
+
+    const secret = user.password + user.email;
+    const token = await sign(payload, secret)
+
+    const link = `http://localhost:5173/resetpass/${email}/${token}`
+
+    return c.json({
+      status:201,
+      user,
+      link
+    },201)
+
+
+  } catch (error:any) {
+    return c.json({
+      status : 401,
+      msg : "Some error occured",
+      error : error.message
+    },400)
+  }
+})
+
+app.post('/api/resetPass' , async(c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  try {
+    const {password , token , email} = await c.req.json();
+
+    const user = await prisma.user.findUnique({
+      where : {email}
+    })
+
+    if(user === null){
+      return c.json({
+        status : 404,
+        msg : "User Not found"
+      },404)
+    }
+
+    const secret = user.password + user.email;
+    
+    try {
+      const verification = await verify(token , secret);
+      // logic for password updation
+      const user = await prisma.user.update({
+        where: { email },
+        data: { password},
+      });
+      
+      return c.json({ message: 'Password updated successfully' ,user , status:201});
+    } catch (error) {
+      return c.json({
+        message : "Verification failed"
+      })
+    }
+
+
+  } catch (error:any) {
+    return c.json({
+      status : 401,
+      msg : "Some error occured",
+      error : error.message
+    },400)
+  }
+})
 
 
 

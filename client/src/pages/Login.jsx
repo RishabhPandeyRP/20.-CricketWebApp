@@ -10,66 +10,66 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-    const [loading , setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     async function loginUser(data) {
         setLoading(true);
         console.log("data is : ", data);
-    
+
         try {
-          let url = "http://127.0.0.1:8787/api/user/login";
-          const response = await fetch(url, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-type": "application/json; charset=UTF-8"
+            let url = "https://server.rishabh17704.workers.dev/api/user/login";
+            const response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+            const finalRes = await response.json();
+
+            if (finalRes.status == 411) {
+                toast.error("invalid inputs");
+                setLoading(false);
+                return;
             }
-          });
-          const finalRes = await response.json();
-    
-          if (finalRes.status == 411) {
-            toast.error("invalid inputs");
+
+            if (finalRes.status == 404) {
+                toast.error("user not found");
+                setLoading(false);
+                return;
+            }
+
+            if (finalRes.status == 400) {
+                toast.error("Incorrect password");
+                setLoading(false);
+                return;
+            }
+
+            if (finalRes.status === 201) {
+                console.log(finalRes);
+                //dispatch(loginSuccess(finalRes.user.userId));
+                localStorage.setItem("shopCoToken", finalRes.token)
+                localStorage.setItem("userId", finalRes.user.userId)
+                localStorage.setItem("email", finalRes.user.email)
+                toast.success("loggedIn successfully")
+                setLoading(false);
+                return navigate("/")
+            }
+            else {
+                //dispatch(authFailure("signup failed"));
+                toast.error("Some error occured")
+            }
+
             setLoading(false);
-            return;
-          }
-    
-          if (finalRes.status == 404) {
-            toast.error("user not found");
-            setLoading(false);
-            return;
-          }
-    
-          if (finalRes.status == 400) {
-            toast.error("Incorrect password");
-            setLoading(false);
-            return;
-          }
-    
-          if (finalRes.status === 201) {
-            console.log(finalRes);
-            //dispatch(loginSuccess(finalRes.user.userId));
-            localStorage.setItem("shopCoToken", finalRes.token)
-            localStorage.setItem("userId", finalRes.user.userId)
-            localStorage.setItem("email", finalRes.user.email)
-            toast.success("loggedIn successfully")
-            setLoading(false);
-            return navigate("/")
-          }
-          else {
-            //dispatch(authFailure("signup failed"));
-            toast.error("Some error occured")
-          }
-    
-          setLoading(false);
-    
+
         } catch (error) {
-          //dispatch(authFailure("signup failed"));
-          console.log("some error occured", error);
-          toast.error("Some error occured");
-          setLoading(false);
+            //dispatch(authFailure("signup failed"));
+            console.log("some error occured", error);
+            toast.error("Some error occured");
+            setLoading(false);
         }
-      }
+    }
 
     const validateForm = () => {
         let formErrors = {};
@@ -136,20 +136,26 @@ const Login = () => {
                     {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
                 </div>
 
-                <span className="self-end mr-2 text-[#1F41BB] font-semibold text-[14px]" onClick={() => navigate("/fpp")}>
+                <span className="self-end mr-2 text-[#1F41BB] font-semibold text-[14px] cursor-pointer" onClick={() => navigate("/fpp")}>
                     Forgot your password?
                 </span>
-                <button onClick={handleLogin} className="w-[95%] bg-[#1F41BB] text-white py-3 rounded-lg font-semibold text-[18px]">
-                    Sign in
-                </button>
+                {
+                    loading ? <button className="w-[95%] bg-[#1F41BB] text-white py-3 rounded-lg font-semibold text-[18px] opacity-50">
+                        Signing... 
+                    </button> :
+                        <button onClick={handleLogin} className="w-[95%] bg-[#1F41BB] text-white py-3 rounded-lg font-semibold text-[18px]">
+                            Sign in
+                        </button>
+                }
+
                 <span className="mr-2 font-semibold text-[14px] flex gap-2">
                     <span>New to the game? </span>
-                    <span className="text-[#1F41BB]" onClick={() => navigate("/signup")}>Sign Up</span>
+                    <span className="text-[#1F41BB] cursor-pointer" onClick={() => navigate("/signup")}>Sign Up</span>
                 </span>
                 <span className="mr-2 text-[#1F41BB] font-semibold text-[14px] flex gap-2">
                     <span>or continue with</span>
                 </span>
-                <div className="border p-2 rounded-md">
+                <div className="border p-2 rounded-md cursor-pointer">
                     <img src={googleImage} alt="Google" className="w-[25px] h-[25px]" />
                 </div>
             </div>
