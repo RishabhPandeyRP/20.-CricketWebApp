@@ -54,7 +54,7 @@ const Login = () => {
                 localStorage.setItem("email", finalRes.user.email)
                 toast.success("loggedIn successfully")
                 setLoading(false);
-                return navigate("/")
+                return navigate("/home")
             }
             else {
                 //dispatch(authFailure("signup failed"));

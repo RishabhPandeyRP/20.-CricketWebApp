@@ -13,12 +13,12 @@ function App() {
     <div className="App">
       
       <Routes>
-        <Route path="/" element={<UnderConstruction></UnderConstruction>} />
+        <Route path="/home" element={<UnderConstruction></UnderConstruction>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/fpp" element={<ForgotPassPage />} />
         <Route path="/resetpass/:email/:token" element={<ResetPassword></ResetPassword>} />
-        <Route path="/splash" element={<Splash></Splash>} />
+        <Route path="/" element={<Splash></Splash>} />
       </Routes>
       <Toaster></Toaster>
     </div>
