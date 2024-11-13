@@ -147,8 +147,8 @@ const ForgotPassPage = () => {
                 </button>
 
                 <span className="mr-2 font-semibold text-[14px] flex gap-2">
-                    <span>New to the game?</span>
-                    <span className="text-[#1F41BB]" onClick={() => navigate("/signup")}>Sign Up</span>
+                    <span>or directly</span>
+                    <span className="text-[#1F41BB]" onClick={() => navigate("/login")}>Log In</span>
                 </span>
                 <span className="mr-2 text-[#1F41BB] font-semibold text-[14px] flex gap-2">
                     <span>or continue with</span>
