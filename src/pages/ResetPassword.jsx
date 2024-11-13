@@ -48,6 +48,10 @@ const ResetPassword = () => {
                 toast.success("Password Changed Successfully");
                 setLoading(false);
                 return navigate("/login");
+            }else{
+                toast.error("Reset Link used")
+                setLoading(false);
+                // return("/login")
             }
 
             setLoading(false);
