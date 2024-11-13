@@ -36,7 +36,7 @@ const ForgotPassPage = () => {
         };
         emailjs.send(Service_id, Template_id, data, user_id).then(
             function (response) {
-                alert("Mail sent successfully");
+                toast.success("Mail sent successfully");
             },
             function (error) {
                 console.log(error);
@@ -71,7 +71,7 @@ const ForgotPassPage = () => {
 
             if (finalRes.status === 201) {
                 sendEmailToUser(finalRes.link);
-                toast.success("Mail sent successfully");
+                //toast.success("Mail sent successfully");
                 setLoading(false);
             } else {
                 toast.error("Some error occurred");
