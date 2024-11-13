@@ -5,10 +5,13 @@ import heroImg from "../assets/image 1.png";
 import googleImage from "../assets/Vector (4).svg";
 import dsgnElem from "../assets/IPL_Auction_SIGN_UP-removebg-preview 1 (1).svg";
 import toast from 'react-hot-toast';
+import view from "../assets/show.png"
+import hide from "../assets/hide.png"
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -28,19 +31,19 @@ const Login = () => {
             });
             const finalRes = await response.json();
 
-            if (finalRes.status == 411) {
+            if (finalRes.status === 411) {
                 toast.error("invalid inputs");
                 setLoading(false);
                 return;
             }
 
-            if (finalRes.status == 404) {
+            if (finalRes.status === 404) {
                 toast.error("user not found");
                 setLoading(false);
                 return;
             }
 
-            if (finalRes.status == 400) {
+            if (finalRes.status === 400) {
                 toast.error("Incorrect password");
                 setLoading(false);
                 return;
@@ -48,25 +51,21 @@ const Login = () => {
 
             if (finalRes.status === 201) {
                 console.log(finalRes);
-                //dispatch(loginSuccess(finalRes.user.userId));
                 localStorage.setItem("shopCoToken", finalRes.token)
                 localStorage.setItem("userId", finalRes.user.userId)
                 localStorage.setItem("email", finalRes.user.email)
                 toast.success("loggedIn successfully")
                 setLoading(false);
                 return navigate("/home")
-            }
-            else {
-                //dispatch(authFailure("signup failed"));
-                toast.error("Some error occured")
+            } else {
+                toast.error("Some error occurred");
             }
 
             setLoading(false);
 
         } catch (error) {
-            //dispatch(authFailure("signup failed"));
-            console.log("some error occured", error);
-            toast.error("Some error occured");
+            console.log("some error occurred", error);
+            toast.error("Some error occurred");
             setLoading(false);
         }
     }
@@ -89,7 +88,6 @@ const Login = () => {
         if (validateForm()) {
             const userDetails = { email, password };
             console.log("User Details:", userDetails);
-            // Implement the login API call here
             loginUser(userDetails);
         }
     };
@@ -126,13 +124,25 @@ const Login = () => {
                     />
                     {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`border rounded-lg h-[45px] bg-white px-3 ${errors.password ? 'border-red-500' : 'border-black'}`}
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`border rounded-lg h-[45px] bg-white px-3 w-full ${errors.password ? 'border-red-500' : 'border-black'}`}
+                        />
+                        <span
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        >
+                            <img
+                                src={showPassword ? hide : view}
+                                alt={showPassword ? "Hide password" : "Show password"}
+                                className="w-5 h-5"
+                            />
+                        </span>
+                    </div>
                     {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
                 </div>
 

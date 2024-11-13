@@ -6,7 +6,7 @@ const Splash = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="w-full h-[100dvh] bg-[#050F40] flex flex-col justify-center items-center gap-3">
+        <div className="w-full h-[100dvh] bg-[#050F40] flex flex-col justify-center items-center gap-3 py-4">
             <div className="-mt-3 border-white">
                 <img src={splashImg} alt="" className=" border-white w-[590px] h-[590px] ml-5" />
             </div>
