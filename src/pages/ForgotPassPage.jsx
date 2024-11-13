@@ -5,10 +5,12 @@ import googleImage from "../assets/Vector (4).svg";
 import dsgnElem from "../assets/IPL_Auction_SIGN_UP__1_-removebg-preview 1.svg";
 import {useNavigate} from "react-router-dom"
 import toast from 'react-hot-toast';
+import emailjs from '@emailjs/browser';
 
 const ForgotPassPage = () => {
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [email , setEmail] = useState('');
+    //const [link , setLink] = useState("null");
     const [timer, setTimer] = useState(0);
     const [loading , setLoading] = useState(false);
     const navigate = useNavigate();
@@ -26,72 +28,81 @@ const ForgotPassPage = () => {
         }
     }, [isButtonDisabled, timer]);
 
-    async function SendMail(data) {
+    const sendEmailToUser = (link) => {
+        const Service_id = "service_dyxcfr2";
+        const Template_id = "template_bhlmrc2";
+        const user_id = "t8p8C3le-Nl9jjUnz";
+        const data = {
+            to_email:email,
+            message:"Your password reset link is : "+link
+        }
+
+        emailjs.send(Service_id,Template_id,data,user_id).then(
+            function(response){
+                alert("mail sent successfully")
+            },
+            function(error){
+                console.log(error)
+            }
+        );
+      };
+
+      async function SendMail(data) {
         setLoading(true);
         console.log("data is : ", data);
     
         try {
-          let url = "https://server.rishabh17704.workers.dev/api/resetLink";
-          const response = await fetch(url, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-              "Content-type": "application/json; charset=UTF-8"
+            let url = "https://server.rishabh17704.workers.dev/api/resetLink";
+            const response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+            const finalRes = await response.json();
+    
+            if (finalRes.status === 411) {
+                toast.error("invalid inputs");
+                setLoading(false);
+                return;
             }
-          });
-          const finalRes = await response.json();
     
-          if (finalRes.status == 411) {
-            toast.error("invalid inputs");
+            if (finalRes.status === 404) {
+                toast.error("user not found");
+                setLoading(false);
+                return;
+            }
+    
+            if (finalRes.status === 201) {
+                console.log(finalRes.link);
+                //setLink(finalRes.link);  // Update the link
+    
+                // Now that the link is updated, send the email
+                sendEmailToUser(finalRes.link);
+    
+                toast.success("mail sent successfully");
+                setLoading(false);
+            } else {
+                toast.error("Some error occurred");
+            }
+    
             setLoading(false);
-            return;
-          }
-    
-          if (finalRes.status == 404) {
-            toast.error("user not found");
-            setLoading(false);
-            return;
-          }
-    
-        //   if (finalRes.status == 400) {
-        //     toast.error("Incorrect password");
-        //     setLoading(false);
-        //     return;
-        //   }
-    
-          if (finalRes.status === 201) {
-            console.log(finalRes.link);
-            //dispatch(loginSuccess(finalRes.user.userId));
-            // localStorage.setItem("shopCoToken", finalRes.token)
-            // localStorage.setItem("userId", finalRes.user.userId)
-            // localStorage.setItem("email", finalRes.user.email)
-            toast.success("mail sent successfully")
-            setLoading(false);
-            // return navigate("/")
-          }
-          else {
-            //dispatch(authFailure("signup failed"));
-            toast.error("Some error occured")
-          }
-    
-          setLoading(false);
     
         } catch (error) {
-          //dispatch(authFailure("signup failed"));
-          console.log("some error occured", error);
-          toast.error("Some error occured");
-          setLoading(false);
+            console.log("some error occurred", error);
+            toast.error("Some error occurred");
+            setLoading(false);
         }
-      }
-
+    }
+    
     const handleResendClick = () => {
         setIsButtonDisabled(true);
         setTimer(120); // Start 2-minute timer (120 seconds)
-        // Logic to resend the email goes here
-        let data = {email}
-        SendMail(data);
-        console.log(email)
+        let data = { email };
+        SendMail(data);  // Calling SendMail will now trigger sendEmailToUser after link is set
     };
+    
 
     return (
         <div>
