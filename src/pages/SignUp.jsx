@@ -87,7 +87,7 @@ const SignUp = () => {
     };
 
     return (
-        <div className='h-[100vh] border border-green-500'>
+        <div className='h-[100vh] border-green-500'>
             {/* header */}
             <div className="w-full border-blue-500 h-[50px] flex items-center px-2 gap-2">
                 <div>
