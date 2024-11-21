@@ -7,6 +7,8 @@ import dsgnElem from "../assets/IPL_Auction_SIGN_UP-removebg-preview 1 (1).svg";
 import toast from 'react-hot-toast';
 import view from "../assets/show.png"
 import hide from "../assets/hide.png"
+import { setUser } from "../slices/userSlice"; 
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -15,6 +17,7 @@ const Login = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     async function loginUser(data) {
         setLoading(true);
@@ -51,9 +54,18 @@ const Login = () => {
 
             if (finalRes.status === 201) {
                 console.log(finalRes);
+                const {user , token} = finalRes;
                 localStorage.setItem("shopCoToken", finalRes.token)
-                localStorage.setItem("userId", finalRes.user.userId)
+                localStorage.setItem("userId", finalRes.user.id)
                 localStorage.setItem("email", finalRes.user.email)
+                console.log("the user id while login is : " , finalRes.user.id)
+                // Dispatch action to update Redux state
+                dispatch(setUser({
+                    userId:finalRes.user.id,
+                    email: user.email,
+                    username: user.username,
+                    token,
+                }));
                 toast.success("loggedIn successfully")
                 setLoading(false);
                 return navigate("/home")
