@@ -42,7 +42,7 @@ const Home = () => {
     useEffect(() => {
         const fetchAuctions = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8787/api/auctions/getall');
+                const response = await fetch('https://server.rishabh17704.workers.dev/api/auctions/getall');
                 const data = await response.json();
                 setAuctions(data.auctions);
 

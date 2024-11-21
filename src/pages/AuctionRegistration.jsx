@@ -45,7 +45,7 @@ const AuctionRegistration = () => {
                 ownerId: Number(userId),
             }
 
-            let url = "http://127.0.0.1:8787/api/auctions/register-participant";
+            let url = "https://server.rishabh17704.workers.dev/api/auctions/register-participant";
             const response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(data),
