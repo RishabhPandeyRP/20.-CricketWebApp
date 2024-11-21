@@ -36,6 +36,8 @@ const Home = () => {
         },
     ]);
 
+    console.log("liveActions: ", liveAuctions);
+
     // Fetch auctions from API
     useEffect(() => {
         const fetchAuctions = async () => {
@@ -103,6 +105,8 @@ const Home = () => {
             </div> */}
 
             <Header heading={`Welcome, ${username.split(" ")[0]}`}></Header>
+
+            {JSON.stringify(liveAuctions)}
 
             {/* Live Auctions Carousel */}
             {liveAuctions.length > 0 && (
