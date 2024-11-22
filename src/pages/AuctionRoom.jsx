@@ -52,8 +52,8 @@ const AuctionRoom = () => {
   return (
     <>
       <Header heading={room}></Header>
-      <div className="bg-white h-fit w-full p-4 font-sans flex flex-col items-center relative">
-        <div className="bg-white rounded-lg p-4 w-full flex justify-center relative">
+      <div className="bg-white h-fit w-full font-sans flex flex-col items-center justify-between relative">
+        <div className="rounded-lg p-4 mt-4 w-full flex justify-center relative">
           <div className="absolute top-0 left-10">
             <img
               src={player.image}
@@ -62,7 +62,7 @@ const AuctionRoom = () => {
             />
           </div>
 
-          <div className="text-sm text-gray-600 w-[70%]">
+          <div className="text-xs text-gray-600 w-[70%]">
             <p className="border-2 border-t-zinc-200 py-1 px-2 text-end">
               Type: {player.role}
             </p>
@@ -88,7 +88,7 @@ const AuctionRoom = () => {
           <h3 className="text-black text-2xl font-bold">Current Bid</h3>
         </div>
 
-        <div className="bg-white shadow mt-6 rounded-lg w-full overflow-hidden">
+        <div className="bg-white shadow mt-6 rounded-lg w-[95%] overflow-hidden">
           <h3 className="text-black font-bold bg-zinc-300 py-2 px-4 text-start text-sm">
             CURRENT BIDS
           </h3>
@@ -138,10 +138,11 @@ const AuctionRoom = () => {
 
           <div className="w-full bg-gray-200 rounded-full">
             <div
-              className="bg-red-500 h-5 rounded-full"
+              className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-5 rounded-full"
               style={{ width: `${(budget.remaining / budget.total) * 100}%` }}
             ></div>
           </div>
+
           <div className="flex justify-between mt-2 font-bold text-md">
             <span>Budget</span>
             <span>
@@ -150,18 +151,20 @@ const AuctionRoom = () => {
           </div>
         </div>
 
-        <div className="fixed bottom-0 w-full shadow p-4 py-6 border-[3px] border-black rounded-3xl flex justify-between font-medium text-md">
-          <button className="bg-blue-700 text-white py-2 px-3 rounded-3xl">
+        <div className="w-full shadow p-4 py-6 border-[3px] border-black rounded-3xl flex justify-between items-center font-medium text-md">
+          <button className="flex-1/4 mx-1 bg-blue-700 text-white py-3 px-2 sm:px-4 rounded-3xl text-center text-sm sm:text-base">
             PULL BACK
           </button>
-          <button className="bg-blue-700 text-white py-2 rounded-3xl flex items-center justify-center gap-2 w-fit">
-            <span className="border-2 border-white ml-3 p-1 rounded-full text-xs">
+
+          <button className="flex-1/4 mx-1 bg-blue-700 text-white py-2 px-2 sm:px-4 rounded-3xl flex items-center justify-center gap-2 text-sm sm:text-base">
+            <span className="border-2 border-white p-1 rounded-full text-xs sm:text-sm">
               5/5
-            </span>{" "}
-            <span className="mr-3">JUMP</span>
+            </span>
+            <span>JUMP</span>
           </button>
-          <button className="bg-blue-700 text-white py-2 rounded-3xl px-2">
-            <span className="border-white border-2 p-1 mx-1 text-xs w-fit h-fit rounded-full">
+
+          <button className="flex-2/4 bg-blue-700 text-white py-2 px-2 sm:px-4 rounded-3xl flex items-center justify-center gap-2 text-sm sm:text-base">
+            <span className="border-white border-2 p-1 sm:p-2 rounded-full text-xs sm:text-sm">
               18
             </span>
             OFFER +20CR
