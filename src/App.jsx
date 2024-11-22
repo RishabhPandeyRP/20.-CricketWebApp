@@ -13,9 +13,13 @@ import AuctionRegistration from './pages/AuctionRegistration';
 import SuccessRegister from './pages/SuccessfulRegistration';
 import MyProfile from './pages/MyProfile';
 import AuctionHome from './pages/AuctionHome';
+
 import AuctionRoom from './pages/AuctionRoom';
 import BidHistory from './pages/BidHistory';
+
 import Teams from './pages/TeamsPage';
+
+import Auction from "./pages/AuctionRoom"
 
 function App() {
   return (
@@ -28,9 +32,13 @@ function App() {
         <Route path="/fpp" element={<ForgotPassPage />} />
         <Route path="/resetpass/:email/:token" element={<ResetPassword/>} />
         <Route path="/" element={<Splash></Splash>} />
+
         <Route path="/auction/:id" element={<AuctionDetail />} />
         <Route path="/register/:id" element={<AuctionRegistration />} />
         <Route path="/successregister" element={<SuccessRegister/>} />
+
+        <Route path="/auctionRoom/:auctionId" element={<AuctionRoom/>}/>
+        
         <Route path="/profile" element={<MyProfile/>} />
         <Route path="/bidhistory" element={<BidHistory></BidHistory>} />
         <Route path="/teampage" element={<Teams></Teams>} />

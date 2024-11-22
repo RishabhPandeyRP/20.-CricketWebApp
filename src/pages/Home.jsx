@@ -106,7 +106,7 @@ const Home = () => {
 
             <Header heading={`Welcome, ${username.split(" ")[0]}`}></Header>
 
-            {JSON.stringify(liveAuctions)}
+            {/* {JSON.stringify(liveAuctions)} */}
 
             {/* Live Auctions Carousel */}
             {liveAuctions.length > 0 && (

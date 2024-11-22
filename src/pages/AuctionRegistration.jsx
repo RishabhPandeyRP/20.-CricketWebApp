@@ -13,6 +13,7 @@ const AuctionRegistration = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { auction } = location.state; // Auction details passed from AuctionDetail page
+    console.log("auctions:", auction);
     const { id } = useParams(); // Retrieve auction ID from URL
 
     const [teamName, setTeamName] = useState('');
@@ -33,10 +34,7 @@ const AuctionRegistration = () => {
         setIsSubmitting(true);
 
         try {
-
-
             const data = {
-
                 auctionId: Number(auction.id),
                 teamName: teamName,
                 mobileNumber: mobileNumber,
@@ -143,17 +141,12 @@ const AuctionRegistration = () => {
                             required
                         />
                     </div>
-
-                    {/* Registration Fee Display */}
                     <div>
-                        
                         <div className="w-full bg-gray-100  border-gray-300 rounded-md flex justify-between items-center mt-10">
                             <div className='flex flex-col'>
                                 <span className='font-bold text-[15px] text-neutral-400'>Total</span>
                                 <span className='font-semibold text-[20px]'>Rs. {auction.registrationFee}</span>
                             </div>
-
-                            {/* Submit Button */}
                             <button
                                 type="submit"
                                 className={`w-[60%] px-4 py-3 text-xl bg-blue-600 text-white rounded-md font-medium ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
@@ -164,8 +157,6 @@ const AuctionRegistration = () => {
                             </button>
                         </div>
                     </div>
-
-
                 </form>
             </div>
         </div>
