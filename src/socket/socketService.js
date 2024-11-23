@@ -8,6 +8,7 @@ class SocketService {
 
   // ------------------------------------------------
   connect(token, auctionId) {
+    console.log(token, auctionId, "params");
     if (this.socket?.connected) {
       console.log("Socket already connected");
       return Promise.resolve(this.socket);
@@ -16,11 +17,13 @@ class SocketService {
     console.log("Attempting socket connection...", { auctionId });
 
     return new Promise((resolve, reject) => {
-      this.socket = io(this.SOCKET_URL, {
-        extraHeaders: {
-          token,
-          "x-room-lobby": auctionId.toString(),
-        },
+      this.socket = io("http://localhost:3009", {
+        auth: {
+          "token": 10,
+          "x-room-lobby": 1
+      },
+      transports: ['websocket'],
+      reconnection: true,
       });
 
       this.socket.on("connect", () => {
@@ -95,12 +98,14 @@ class SocketService {
   emitGetActivePlayer() {
     console.log("emitting getActive player....");
     this.socket.emit("getActivePlayer");
-    this.socket.on("activePlayerDetail", (playerData) => {
-      console.log("Active Player Data:", playerData);
-    });
+    // this.socket.on("activePlayerDetail", (playerData) => {
+    //   console.log("Active Player Data:", playerData);
+    //   return playerData;
+    // });
   }
 
   emitGetPlayerCount() {
+    console.log("Emitting getPlayerCount")
     this.emit("playerCount");
   }
 
@@ -108,16 +113,19 @@ class SocketService {
 
   onNewUserConnected() {
     this.on("newUserConnected", () => {
-      console.log("New user connected:");
+      console.log("New user connected................");
+      this.emitGetRoomSize()
     });
   }
 
-  onUserDisconnected(callback) {
-    this.on("userDisconnected", (data) => {
-      console.log("User disconnected:", data);
-      callback(data);
+  onUserDisconnected() {
+    this.on("userDisconnected", () => {
+      console.log("User disconnected:");
+      this.emitGetRoomSize()
     });
   }
+
+  // -----------------------
 
   emitBid(auctionPlayerId, biddingAmount) {
     this.emit("bid", { auctionPlayerId, biddingAmount });
@@ -130,12 +138,16 @@ class SocketService {
     });
   }
 
+  // -----------------------------
+
   onError(callback) {
     this.on("error", (error) => {
       console.error("Socket error received:", error);
       callback(error);
     });
   }
+
+  // ---------------------------
 
   onRoomSize(callback) {
     this.on("auctionRoomSize", (data) => {
@@ -165,13 +177,19 @@ class SocketService {
     });
   }
 
+  // ----------------------------
+
   emitGetBudget() {
+    console.log("Emitting getBudget....")
     this.socket.emit("getBudget");
   }
 
   onBudgetUpdate(callback) {
+    console.log("Listening for onBudgetUpdate...")
     this.socket.on("budgetUpdate", callback);
   }
+
+  // --------------------------------
 
   isConnected() {
     return !!this.socket?.connected;

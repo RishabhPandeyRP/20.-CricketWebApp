@@ -1,39 +1,7 @@
-// import { getAuctionPlayersByID, getAllUsers, fetchplayers } from "../api/fetch";
-//   useEffect(() => {
-//     const test1 = async () => {
-//       try {
-//         const response = await getAllUsers();
-//         console.log(response.data, "test1");
-//       } catch (error) {
-//         console.error("Error fetching bid history:", error);
-//       }
-//     };
-
-//     const test2 = async () => {
-//       try {
-//         const response = await getAuctionPlayersByID(1, 2);
-//         console.log(response.data, "test2");
-//       } catch (error) {
-//         console.error("Error fetching bid history:", error);
-//       }
-//     };
-
-//     const test3 = async () => {
-//       try {
-//         const response = await fetchplayers();
-//         console.log(response.data, "test3");
-//       } catch (error) {
-//         console.error("Error fetching bid history:", error);
-//       }
-//     };
-
-//     test2();
-//     // test1();
-//     test3();
-//   }, []);
-
+import { getAuctionPlayersByID, getAllUsers, fetchplayers } from "../api/fetch";
 import { MoreHorizontal, Users, GitCompare } from "lucide-react";
 import Header from "../components/Header";
+import { useEffect } from "react";
 
 const dummyData = [
   {
@@ -72,8 +40,7 @@ const dummyData = [
 
 const ResultCard = ({ team }) => (
   <div className="bg-white rounded-xl shadow mb-3 w-full max-w-md border-2 border-blue-600 overflow-hidden">
-    <div className="min-h-[2vh] bg-blue-600">
-    </div>
+    <div className="min-h-[2vh] bg-blue-600"></div>
     <div className="flex items-center justify-between px-4 py-2">
       <div className="flex items-center gap-3">
         <img
@@ -123,10 +90,33 @@ const ResultCard = ({ team }) => (
 );
 
 const ResultPage = () => {
+  useEffect(() => {
+    const test1 = async () => {
+      try {
+        const response = await getAllUsers();
+        console.log(response.data, "test1");
+      } catch (error) {
+        console.error("Error fetching bid history:", error);
+      }
+    };
+
+    const test3 = async () => {
+      try {
+        const response = await fetchplayers();
+        console.log(response.data, "test3");
+      } catch (error) {
+        console.error("Error fetching bid history:", error);
+      }
+    };
+
+    test1();
+    test3();
+  }, []);
+
   return (
     <>
       <div>
-        <Header heading={"Results"}/>
+        <Header heading={"Results"} />
       </div>
       <div className="bg-gray-100 min-h-screen p-4">
         <div className="max-w-md mx-auto">
