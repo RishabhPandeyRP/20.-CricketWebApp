@@ -16,10 +16,10 @@ import AuctionHome from './pages/AuctionHome';
 
 import AuctionRoom from './pages/AuctionRoom';
 import BidHistory from './pages/BidHistory';
+import ResultPage from './pages/Result';
 
 import Teams from './pages/TeamsPage';
 
-import Auction from "./pages/AuctionRoom"
 
 function App() {
   return (
@@ -42,6 +42,7 @@ function App() {
         <Route path="/profile" element={<MyProfile/>} />
         <Route path="/bidhistory" element={<BidHistory></BidHistory>} />
         <Route path="/teampage" element={<Teams></Teams>} />
+        <Route path="/result" element={<ResultPage/>}/>
 
         <Route path="/auctionHome" element={<AuctionHome />} />
         <Route path="/auction-room" element={<AuctionRoom />} />

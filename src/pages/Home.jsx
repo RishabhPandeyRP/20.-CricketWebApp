@@ -65,14 +65,17 @@ const Home = () => {
     // Filter scheduled auctions by date range
     useEffect(() => {
         const { startDate, endDate } = dateRange[0];
+        console.log(startDate, endDate, "dates");
         if (!startDate || !endDate) {
             // Show all scheduled auctions when no date range is selected
             setFilteredScheduledAuctions(scheduledAuctions);
         } else {
+            console.log(scheduledAuctions, "scheduledAuction");
             const filtered = scheduledAuctions.filter((auction) => {
                 const auctionDate = new Date(auction.startTime);
                 return auctionDate >= startDate && auctionDate <= endDate;
             });
+            console.log(filtered, "filtered");
             setFilteredScheduledAuctions(filtered);
         }
     }, [dateRange, scheduledAuctions]);
@@ -116,6 +119,7 @@ const Home = () => {
                         <div
                             key={auction.id}
                             className={`${carouselStyles.slide} ${currentLiveSlide === index ? 'block' : 'hidden'}`}
+                            onClick={() => navigate(`/auction/${auction.id}`, { state: { auction } })}
                         >
                             <div>
                                 <img
