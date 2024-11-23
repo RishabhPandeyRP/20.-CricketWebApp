@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Header from "../components/Header";
-import SocketService from "../socket/SocketService.js";
+import SocketService from "../socket/socketService";
 
 
 const AuctionRoom = () => {
