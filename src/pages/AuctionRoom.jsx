@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Header from "../components/Header";
@@ -6,32 +6,50 @@ import SocketService from "../socket/socketService";
 import { getAuctionPlayersByID } from "../api/fetch";
 import { ArrowUpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
+import TimerComponent from "../components/TimerComponent";
 
 const AuctionRoom = () => {
   const navigate = useNavigate();
   const [currentBid, setCurrentBid] = useState(0);
   const [error, setError] = useState(null);
   const [roomSize, setRoomSize] = useState(0);
+
   const [activePlayer, setActivePlayer] = useState(null);
   const [remainingPlayers, setRemainingPlayers] = useState(0);
+
   const [isConnected, setIsConnected] = useState(false);
   const [currentBids, setCurrentBids] = useState([]);
-  const [budget, setBudget] = useState({ remaining: 0, total: 0 });
+
+  const [budget, setBudget] = useState({ remaining: 1000, total: 1000 });
 
   const location = useLocation();
   const auctionId = location?.state?.auction?.id || "defaultAuction";
   const { userId, token } = useSelector((state) => state.user);
+  const [activePlayerId, setActivePlayerId] = useState(null);
+
+  // const [bidAmount, setBidAmount] = useState(0);
+  const [jump, setJump] = useState(100);
+  const [activePlayerName, setActivePlayerName] = useState("");
+
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const fetchPlayerById = async () => {
       try {
-        if (roomSize >= 1 && activePlayer?.playerId) {
+        if (roomSize >= 2 && activePlayer?.playerId) {
           const res = await getAuctionPlayersByID(
             activePlayer?.playerId,
             auctionId
           );
           console.log(res, "fetchPlayerById");
+          // if (timerRef.current) {
+          //   timerRef.current.startTimer();
+          // }
           setActivePlayer(res?.player);
+          setActivePlayerId(res?.id);
+          setCurrentBid(res.currentBid !== null ? res.currentBid : 0);
         }
       } catch (error) {
         console.log("error", error);
@@ -39,27 +57,50 @@ const AuctionRoom = () => {
     };
 
     fetchPlayerById();
-  }, [activePlayer?.playerId]);
+  }, [activePlayer?.playerId, roomSize, auctionId]);
 
   const setupSocketListeners = useCallback(() => {
     SocketService.onRoomSize((data) => {
       console.log("Received room size:", data.roomSize);
       setRoomSize(data.roomSize);
     });
-    SocketService.onActivePlayer((data) => setActivePlayer(data));
-    SocketService.onPlayerCount((data) => console.log("playerCount", data));
+    SocketService.onActivePlayer((data) => {
+      setActivePlayer(data);
+      setActivePlayerName(data?.player?.name);
+    });
+    SocketService.onPlayerCount((data) => setRemainingPlayers(data?.count));
 
     SocketService.onNewUserConnected("new user connected");
+
     SocketService.onUserDisconnected((data) =>
       console.log("user disconnected", data)
     );
 
-    SocketService.onNewBid((data) => console.log("Bid Data received:", data));
+    SocketService.onNewBid((data) => {
+      // if (timerRef.current) {
+      //   timerRef.current.resetTimer();
+      // }
+      toast.success(`${data.amount}Cr Bid is Placed`);
+      const updatedBudget = {
+        remaining: budget.remaining - data.amount,
+        total: budget.total,
+      };
+
+      setBudget(updatedBudget);
+      setCurrentBid(data.amount);
+    });
+
     SocketService.onBudgetUpdate((data) => console.log("Budget Update", data));
 
-    SocketService.onAskNewPlayer((data) =>
-      console.log("Askinged new player:", data)
-    );
+    SocketService.onAskNewPlayer(() => {
+      console.log("Askinged new player:");
+      toast.success(
+        `Current Player "${activePlayerName}" is sold Successfully!`
+      );
+      // if (timerRef.current) {
+      //   timerRef.current.startTimer();
+      // }
+    });
 
     SocketService.onError((error) => {
       setError(error.message);
@@ -77,7 +118,12 @@ const AuctionRoom = () => {
     }
   };
 
+  const handleTimerEnd = () => {
+    console.log("Timer has run out!");
+  };
+
   useEffect(() => {
+    // const timerRefrence = timerRef.current;
     const initializeSocket = async () => {
       try {
         const token = userId;
@@ -90,6 +136,10 @@ const AuctionRoom = () => {
           SocketService.emitGetActivePlayer();
           SocketService.emitGetBudget();
           SocketService.emitGetPlayerCount();
+
+          // if (timerRefrence) {
+          //   timerRefrence.startTimer();
+          // }
         }
       } catch (error) {
         console.error("Failed to initialize socket:", error);
@@ -102,6 +152,10 @@ const AuctionRoom = () => {
       console.log("Cleaning up socket connection...");
       SocketService.disconnect();
       setIsConnected(false);
+
+      // if (timerRefrence) {
+      //   timerRefrence.resetTimer();
+      // }
     };
   }, [auctionId, userId, setupSocketListeners]);
 
@@ -110,9 +164,9 @@ const AuctionRoom = () => {
       console.warn("Cannot place bid:", { isConnected, activePlayer });
       return;
     }
-
-    console.log("Placing bid:", { amount, playerId: activePlayer.playerId });
-    SocketService.emitBid(activePlayer.playerId, amount);
+    if (activePlayerId) {
+      SocketService.emitBid(activePlayerId, amount);
+    }
   };
 
   const ConnectionStatus = () => (
@@ -137,7 +191,7 @@ const AuctionRoom = () => {
         </div>
       )}
 
-      {roomSize ? (
+      {roomSize >= 2 && remainingPlayers > 0 ? (
         <div className="flex-1 w-full font-sans flex flex-col items-center justify-between relative">
           <div className="rounded-lg p-4 mt-4 w-full flex justify-center relative">
             <div className="absolute top-0 left-10">
@@ -234,32 +288,59 @@ const AuctionRoom = () => {
             <div className="flex justify-between mt-2 font-bold text-md">
               <span>Budget</span>
               <span>
-                <span className="text-red-500">{budget.remaining} /</span>{" "}
+                <span className="text-red-500">{budget.remaining}/</span>{" "}
                 {budget.total} Cr
               </span>
             </div>
           </div>
 
-          <div className="w-full shadow p-4 py-6 border-[3px] border-black rounded-3xl flex justify-between items-center font-medium text-md">
+          <div className="w-full shadow p-2 py-3 border-[3px] border-black rounded-full flex justify-between items-center font-medium text-md">
             <button
               onClick={() => SocketService.emitGetActivePlayer()}
-              className="flex-1/4 mx-1 bg-blue-700 text-white py-3 px-2 sm:px-4 rounded-3xl text-center text-sm sm:text-base"
+              className="flex-1/4  bg-blue-700 text-white py-[0.6rem] px-2 rounded-3xl text-center text-sm sm:text-base font-semibold"
             >
               PULL BACK
             </button>
 
             <button
               onClick={() => console.log("Jump clicked")}
-              className="flex-1/4 mx-1 bg-blue-700 text-white py-2 px-2 sm:px-4 rounded-3xl text-center text-sm sm:text-base"
+              className="flex-1/4 mx-1 bg-blue-700 text-white py-2 px-3 rounded-3xl flex items-center justify-between gap-1 text-center text-sm sm:text-base font-semibold"
             >
+              <span className="inline-block text-[0.7rem] w-6 h-6 border-2 border-blue-950 rounded-full bg-white text-blue-600">
+                {jump}
+              </span>
               JUMP
             </button>
 
             <button
-              onClick={() => placeBid(currentBid + 1)}
-              className="flex-1/4 mx-1 bg-blue-700 text-white py-2 px-2 sm:px-4 rounded-3xl text-center text-sm sm:text-base"
+              onClick={() => placeBid(currentBid + jump)}
+              className="flex-1/4 mx-1 bg-blue-700 text-white py-2 px-3 rounded-3xl text-center text-sm sm:text-base flex items-center justify-between gap-1 font-semibold"
             >
+              <span className="inline-block text-[0.7rem] w-6 h-6 border-2 border-blue-950 rounded-full bg-white text-blue-600">
+                {currentBid + jump}
+              </span>
               INCREASE BID
+            </button>
+          </div>
+
+          <div className="fixed right-2 top-[40%] transform -translate-y-1/2 flex flex-col items-center space-y-4">
+            {/* <button
+              className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              onClick={() => console.log("Button 1 clicked")}
+            >
+              1
+            </button>
+            <button
+              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+              onClick={() => console.log("Button 2 clicked")}
+            >
+              2
+            </button> */}
+            <button
+              className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+              onClick={() => console.log("Button 3 clicked")}
+            >
+              <TimerComponent ref={timerRef} onTimerEnd={handleTimerEnd} />
             </button>
           </div>
         </div>
@@ -271,13 +352,28 @@ const AuctionRoom = () => {
             </div>
             <h1 className="text-xl font-semibold text-gray-800">Room Status</h1>
             {isConnected ? (
-              <p className="text-gray-600 mt-2 font-medium">
-                The room size is currently less than 2. Please wait or check
-                back later.
-              </p>
+              remainingPlayers < 1 ? (
+                <p className="text-gray-600 mt-2 font-medium my-4">
+                  <span className="block font-bold text-3xl">
+                    Auction is Ended
+                  </span>
+                  <span className="block">No remaining players to be sold</span>
+                </p>
+              ) : (
+                <p className="text-gray-600 mt-2 font-medium my-4">
+                  <span className="block font-bold text-xl">
+                    Waiting for other players to join
+                  </span>
+                  <span className="block">
+                    {" "}
+                    The room size is currently less than 2. Please wait or check
+                    back later.
+                  </span>
+                </p>
+              )
             ) : (
               <p className="text-gray-600 mt-2 font-medium">
-                Connecting to auction room....
+                Connecting to auction room...
               </p>
             )}
             <button

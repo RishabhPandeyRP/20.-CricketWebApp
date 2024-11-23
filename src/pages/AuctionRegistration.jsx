@@ -8,12 +8,13 @@ import heroImg from "../assets/image 1.png";
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 
+
 const AuctionRegistration = () => {
     const { username, token, userId } = useSelector((state) => state.user);
     const navigate = useNavigate();
     const location = useLocation();
     const { auction } = location.state; // Auction details passed from AuctionDetail page
-    console.log("auctions:", auction);
+    // console.log("auctions:", auction);
     const { id } = useParams(); // Retrieve auction ID from URL
 
     const [teamName, setTeamName] = useState('');

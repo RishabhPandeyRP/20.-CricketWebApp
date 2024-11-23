@@ -19,11 +19,11 @@ class SocketService {
     return new Promise((resolve, reject) => {
       this.socket = io("http://localhost:3009", {
         auth: {
-          "token": token,
-          "x-room-lobby": auctionId
-      },
-      transports: ['websocket'],
-      reconnection: true,
+          token: token,
+          "x-room-lobby": auctionId,
+        },
+        transports: ["websocket"],
+        reconnection: true,
       });
 
       this.socket.on("connect", () => {
@@ -60,9 +60,9 @@ class SocketService {
       console.warn(`Cannot emit event "${eventName}": Socket not connected.`);
       return;
     }
-    console.log(`Emitting event "${eventName}" with data:`, data);
+    console.log(`Emitting event "${eventName}"...`);
 
-    console.log(this.socket.emit, "thisss");
+    // console.log(this.socket.emit, "thisss");
 
     this.socket.emit(eventName, data, (response) => {
       console.log(response, "res of emitter auction size");
@@ -96,7 +96,7 @@ class SocketService {
   }
 
   emitGetActivePlayer() {
-    console.log("emitting getActive player....");
+    console.log("Emitting getActive player....");
     this.socket.emit("getActivePlayer");
     // this.socket.on("activePlayerDetail", (playerData) => {
     //   console.log("Active Player Data:", playerData);
@@ -105,7 +105,7 @@ class SocketService {
   }
 
   emitGetPlayerCount() {
-    console.log("Emitting getPlayerCount")
+    console.log("Emitting getPlayerCount");
     this.emit("playerCount");
   }
 
@@ -114,20 +114,21 @@ class SocketService {
   onNewUserConnected() {
     this.on("newUserConnected", () => {
       console.log("New user connected................");
-      this.emitGetRoomSize()
+      this.emitGetRoomSize();
     });
   }
 
   onUserDisconnected() {
     this.on("userDisconnected", () => {
       console.log("User disconnected:");
-      this.emitGetRoomSize()
+      this.emitGetRoomSize();
     });
   }
 
   // -----------------------
 
   emitBid(auctionPlayerId, biddingAmount) {
+    console.log("Emitting bid:", { auctionPlayerId, biddingAmount });
     this.emit("bid", { auctionPlayerId, biddingAmount });
   }
 
@@ -173,6 +174,7 @@ class SocketService {
   onAskNewPlayer(callback) {
     this.on("askNewPlayer", () => {
       console.log("Received request for a new player");
+      this.emitGetActivePlayer();
       callback();
     });
   }
@@ -180,12 +182,12 @@ class SocketService {
   // ----------------------------
 
   emitGetBudget() {
-    console.log("Emitting getBudget....")
+    console.log("Emitting getBudget....");
     this.socket.emit("getBudget");
   }
 
   onBudgetUpdate(callback) {
-    console.log("Listening for onBudgetUpdate...")
+    console.log("Listening for onBudgetUpdate...");
     this.socket.on("budgetUpdate", callback);
   }
 
