@@ -19,8 +19,8 @@ class SocketService {
     return new Promise((resolve, reject) => {
       this.socket = io("http://localhost:3009", {
         auth: {
-          "token": 10,
-          "x-room-lobby": 1
+          "token": token,
+          "x-room-lobby": auctionId
       },
       transports: ['websocket'],
       reconnection: true,
