@@ -1,167 +1,236 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
-import bellIcon from "../assets/bellIcon.svg";
-import rightArr from "../assets/rightArrWhite.svg";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { Upload, AlertCircle } from "lucide-react";
+import Header from "../components/Header";
 import heroImg from "../assets/image 1.png";
-import { useParams } from 'react-router-dom';
-import Header from '../components/Header';
-
 
 const AuctionRegistration = () => {
-    const { username, token, userId } = useSelector((state) => state.user);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { auction } = location.state; // Auction details passed from AuctionDetail page
-    // console.log("auctions:", auction);
-    const { id } = useParams(); // Retrieve auction ID from URL
+  const { username, token, userId } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { auction } = location.state;
+  const [errors, setErrors] = useState({
+    teamName: "",
+    mobileNumber: "",
+    teamIcon: "",
+  });
 
-    const [teamName, setTeamName] = useState('');
-    const [mobileNumber, setMobileNumber] = useState('');
-    const [teamIcon, setTeamIcon] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teamName, setTeamName] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [teamIcon, setTeamIcon] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        console.log("user id from reg page : ", userId)
-    }, [])
-
-    const handleFileChange = (e) => {
-        setTeamIcon(e.target.files[0]);
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      teamName: "",
+      mobileNumber: "",
+      teamIcon: "",
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
+    if (!teamName.trim()) {
+      newErrors.teamName = "Team name is required";
+      isValid = false;
+    } else if (teamName.length < 3) {
+      newErrors.teamName = "Team name must be at least 3 characters";
+      isValid = false;
+    }
 
-        try {
-            const data = {
-                auctionId: Number(auction.id),
-                teamName: teamName,
-                mobileNumber: mobileNumber,
-                registrationFee: auction.registrationFee,
-                token: token,
-                ownerId: Number(userId),
-            }
+    if (!mobileNumber.trim()) {
+      newErrors.mobileNumber = "Mobile number is required";
+      isValid = false;
+    } else if (!/^[0-9]{10}$/.test(mobileNumber)) {
+      newErrors.mobileNumber = "Enter a valid 10-digit mobile number";
+      isValid = false;
+    }
 
-            let url = "https://server.rishabh17704.workers.dev/api/auctions/register-participant";
-            const response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            });
-            const finalRes = await response.json();
+    if (!teamIcon) {
+      newErrors.teamIcon = "Team icon is required";
+      isValid = false;
+    }
 
-            console.log("this is the data ", data)
-            console.log("this is the final respnse : ", finalRes)
-            return navigate("/successregister" , { state: { auction } })
+    setErrors(newErrors);
+    return isValid;
+  };
 
-        } catch (error) {
-            console.error('Error during registration:', error);
-            console.log(error.message)
-            alert('An error occurred. Please try again.');
-        } finally {
-            setIsSubmitting(false);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        setErrors((prev) => ({
+          ...prev,
+          teamIcon: "File size should be less than 5MB",
+        }));
+        return;
+      }
+      setTeamIcon(file);
+      setErrors((prev) => ({
+        ...prev,
+        teamIcon: "",
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const data = {
+        auctionId: Number(auction.id),
+        teamName: teamName,
+        mobileNumber: mobileNumber,
+        registrationFee: auction.registrationFee,
+        token: token,
+        ownerId: Number(userId),
+      };
+
+      const response = await fetch(
+        "https://server.rishabh17704.workers.dev/api/auctions/register-participant",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
         }
-    };
+      );
+      const finalRes = await response.json();
+      navigate("/successregister", { state: { auction } });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    return (
-        <div className="w-full">
-            {/* <div className='w-full h-[65px] border border-black bg-[#1F41BB] flex justify-between items-center px-4'>
-                <div>
-                    <img src={rightArr} alt="" className="w-[20px] h-[25px]" onClick={() => navigate(-1)} />
-                </div>
-                <div className='font-medium text-[24px] text-white'>
-                    Register in Auction
-                </div>
+  return (
+    <div className="w-full min-h-screen bg-gray-50">
+      <Header heading="Auction Registration" />
 
-                <div className='flex justify-center items-center gap-6'>
-                    <div>
-                        <img src={bellIcon} alt="Notifications" />
-                    </div>
-                    <div className='border border-white w-[30px] h-[30px] rounded-full flex justify-center items-center text-white font-medium text-[16px]'>
-                        <div>{username.split(" ")[0].split("")[0].toUpperCase()}</div>
-                    </div>
-                </div>
-            </div> */}
-            <Header heading={"Auction Registration"}></Header>
-
-            {/* Auction Image */}
-            <div className='relative'>
-                <img
-                    src={heroImg || 'https://via.placeholder.com/600x300'}
-                    alt={auction.title}
-                    className="w-full h-40 object-cover mb-4"
-                />
-                <div className="absolute top-10 left-10 text-white font-semibold text-[20px] w-[80%] text-center">
-                Join us at - 
-                Afternoon Relax Auction
-                </div>
-            </div>
-
-            {/* <h1 className="text-2xl font-bold mb-4">{auction.title}</h1> */}
-
-            {/* Registration Form */}
-            <div className=' border-green-500 w-[90%] mx-auto mt-10'>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Team Name Input */}
-                    <div>
-                        {/* <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label> */}
-                        <input
-                            type="text"
-                            value={teamName}
-                            onChange={(e) => setTeamName(e.target.value)}
-                            className="w-full px-4 h-[60px] border-2 border-[#1F41BB] rounded-lg text-xl mt-3"
-                            placeholder="Enter your team name"
-                            required
-                        />
-                    </div>
-
-                    {/* Mobile Number Input */}
-                    <div>
-
-                        <input
-                            type="text"
-                            value={mobileNumber}
-                            onChange={(e) => setMobileNumber(e.target.value)}
-                            className="w-full px-4 h-[60px] border-2 border-[#1F41BB] rounded-lg text-xl mt-3"
-                            placeholder="Enter your mobile number"
-                            required
-                        />
-                    </div>
-
-                    {/* Team Icon Upload */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1 text-[20px] mt-3">Select Team Icon</label>
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="w-full"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <div className="w-full bg-gray-100  border-gray-300 rounded-md flex justify-between items-center mt-10">
-                            <div className='flex flex-col'>
-                                <span className='font-bold text-[15px] text-neutral-400'>Total</span>
-                                <span className='font-semibold text-[20px]'>Rs. {auction.registrationFee}</span>
-                            </div>
-                            <button
-                                type="submit"
-                                className={`w-[60%] px-4 py-3 text-xl bg-blue-600 text-white rounded-md font-medium ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? 'Submitting...' : 'Continue to Pay'}
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+      <div className="relative">
+        <img
+          src={heroImg || "https://via.placeholder.com/600x300"}
+          alt={auction.title}
+          className="w-full h-40 object-cover mb-4"
+        />
+        <div className="absolute top-10 left-10 text-white font-semibold text-[20px] w-[80%] text-center">
+          Join us at - Afternoon Relax Auction
         </div>
-    );
+      </div>
+
+      <h1 className="text-lg font-semibold mx-6">{auction.title}</h1>
+
+      <div className="max-w-md mx-auto p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl border-2 text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-black transition-all
+                                    ${
+                                      errors.teamName
+                                        ? "border-red-500"
+                                        : "border-black"
+                                    }`}
+                placeholder="Team Name"
+              />
+              {errors.teamName && (
+                <div className="flex items-center gap-1 text-red-500 text-sm mt-1">
+                  <AlertCircle size={16} />
+                  <span>{errors.teamName}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="relative">
+              <input
+                type="tel"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl border-2 text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-black transition-all
+                                    ${
+                                      errors.mobileNumber
+                                        ? "border-red-500"
+                                        : "border-black"
+                                    }`}
+                placeholder="Mobile Number"
+              />
+              {errors.mobileNumber && (
+                <div className="flex items-center gap-1 text-red-500 text-sm mt-1">
+                  <AlertCircle size={16} />
+                  <span>{errors.mobileNumber}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition-all
+                                ${
+                                  errors.teamIcon
+                                    ? "border-red-500"
+                                    : "border-black"
+                                }`}
+              onClick={() => document.getElementById("team-icon-input").click()}
+            >
+              <input
+                id="team-icon-input"
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+              <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
+                <Upload size={24} />
+                <span className="text-lg">
+                  {teamIcon ? teamIcon.name : "Upload Team Icon"}
+                </span>
+              </div>
+            </div>
+            {errors.teamIcon && (
+              <div className="flex items-center gap-1 text-red-500 text-sm">
+                <AlertCircle size={16} />
+                <span>{errors.teamIcon}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8">
+            <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+              <div className="space-y-1">
+                <span className="text-gray-400 text-sm font-medium">TOTAL</span>
+                <p className="text-xl font-semibold">
+                  Rs. {auction.registrationFee}
+                </p>
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium text-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Processing..." : "Continue to pay"}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default AuctionRegistration;
