@@ -19,6 +19,7 @@ import BidHistory from './pages/BidHistory';
 import ResultPage from './pages/Result';
 
 import Teams from './pages/TeamsPage';
+import TestExcel from './pages/TestExcel';
 
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
 
         <Route path="/auctionHome" element={<AuctionHome />} />
         <Route path="/auction-room" element={<AuctionRoom />} />
+        <Route path="/excel-upload" element={<TestExcel></TestExcel>} />
       </Routes>
       <Toaster></Toaster>
     </div>
