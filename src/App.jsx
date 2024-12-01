@@ -14,12 +14,14 @@ import SuccessRegister from "./pages/SuccessfulRegistration";
 import MyProfile from "./pages/MyProfile";
 import AuctionHome from "./pages/AuctionHome";
 
-import AuctionRoom from "./pages/AuctionRoom";
-import BidHistory from "./pages/BidHistory";
-import ResultPage from "./pages/Result";
+
+import AuctionRoom from './pages/AuctionRoom';
+import BidHistory from './pages/BidHistory';
+import ResultPage from './pages/Result';
 import YourTeamPlayers from "./pages/AuctionResult/YourTeamPlayers"
 
-import Teams from "./pages/TeamsPage";
+import Teams from './pages/TeamsPage';
+import TestExcel from './pages/TestExcel';
 
 function App() {
   return (
@@ -45,6 +47,7 @@ function App() {
 
         <Route path="/auctionHome" element={<AuctionHome />} />
         <Route path="/auction-room" element={<AuctionRoom />} />
+        <Route path="/excel-upload" element={<TestExcel></TestExcel>} />
       </Routes>
       <Toaster></Toaster>
     </div>
