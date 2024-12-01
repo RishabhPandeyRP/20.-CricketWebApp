@@ -38,8 +38,8 @@ const TimerComponent = forwardRef(({ onTimerEnd }, ref) => {
   }));
 
   return (
-    <div className="flex items-center justify-center w-fit h-fit font-semibold text-sm">
-      {timeLeft}s
+    <div className="flex items-center justify-center w-fit h-fit font-semibold text-xs">
+      00:{timeLeft}
     </div>
   );
 });

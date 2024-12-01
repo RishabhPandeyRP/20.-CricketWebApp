@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:3009";
+const SOCKET_URL = "http://localhost:3000";
 let socket = null;
 
 const connect = (token, auctionId) => {

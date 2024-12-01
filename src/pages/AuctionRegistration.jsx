@@ -46,11 +46,6 @@ const AuctionRegistration = () => {
       isValid = false;
     }
 
-    if (!teamIcon) {
-      newErrors.teamIcon = "Team icon is required";
-      isValid = false;
-    }
-
     setErrors(newErrors);
     return isValid;
   };
@@ -202,12 +197,12 @@ const AuctionRegistration = () => {
                 </span>
               </div>
             </div>
-            {errors.teamIcon && (
+            {/* {errors.teamIcon && (
               <div className="flex items-center gap-1 text-red-500 text-sm">
                 <AlertCircle size={16} />
                 <span>{errors.teamIcon}</span>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="mt-8">

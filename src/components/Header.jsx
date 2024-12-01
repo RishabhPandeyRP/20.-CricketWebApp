@@ -105,8 +105,7 @@ import tnc from "../assets/t&c.svg";
 import leftArr from "../assets/leftArr.png";
 import whatsapp from "../assets/whatsapp.svg";
 import user from "../assets/user (2).png";
-import { Download } from 'lucide-react';
-
+import { Wallet, ChevronRight, Download, LogOut } from "lucide-react";
 
 const Header = ({ heading }) => {
   const navigate = useNavigate();
@@ -139,9 +138,9 @@ const Header = ({ heading }) => {
 
         <div className="flex justify-center items-center gap-6">
           {heading === "Results" && (
-             <div className="flex justify-center">
-             <Download size={22} className="text-white" />
-           </div>
+            <div className="flex justify-center">
+              <Download size={22} className="text-white" />
+            </div>
           )}
           <div>
             <img src={bellIcon} alt="Notifications" />
@@ -165,7 +164,7 @@ const Header = ({ heading }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 flex flex-col  transition-transform duration-300 text-black ${
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 flex flex-col justify-between transition-transform duration-300 text-black ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-[100%]"
         }`}
         style={{ width: "300px" }}
@@ -215,19 +214,23 @@ const Header = ({ heading }) => {
             </div>
           </button>
           <button
-            onClick={() => navigate("/refer")}
+            onClick={() => navigate("/profile")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
               <div className="flex justify-center items-center gap-5">
-                <img src={whatsapp} alt="" />
-                <div>Refer and Earn</div>
+                <img src={profile} alt="" />
+                <div>My Auctions</div>
               </div>
+
               <div>
                 <img src={leftArr} alt="" />
               </div>
             </div>
           </button>
+
+          <p className="px-4 border-b-2"></p>
+
           <button
             onClick={() => navigate("/rules")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
@@ -242,6 +245,22 @@ const Header = ({ heading }) => {
               </div>
             </div>
           </button>
+          <button
+            onClick={() => navigate("/rules")}
+            className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex justify-center items-center gap-5">
+                <img src={rules} alt="" />
+                <div>How to Register</div>
+              </div>
+              <div>
+                <img src={leftArr} alt="" />
+              </div>
+            </div>
+          </button>
+          <p className="px-4 border-b-2"></p>
+
           <button
             onClick={() => navigate("/tnc")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
@@ -271,7 +290,22 @@ const Header = ({ heading }) => {
             </div>
           </button>
 
-          <p className="px-4 border-b-2 py-2">Test Pages</p>
+          <button
+            onClick={() => navigate("/refer")}
+            className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex justify-center items-center gap-5">
+                <img src={whatsapp} alt="" />
+                <div>Refer and Earn</div>
+              </div>
+              <div>
+                <img src={leftArr} alt="" />
+              </div>
+            </div>
+          </button>
+
+          {/* <p className="px-4 border-b-2">Test Pages</p>
 
           <button
             onClick={() => navigate("/bidhistory")}
@@ -288,7 +322,7 @@ const Header = ({ heading }) => {
             </div>
           </button>
           <button
-            onClick={() => navigate("/teampage")}
+            onClick={() => navigate("/teampage/0/0")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -302,7 +336,7 @@ const Header = ({ heading }) => {
             </div>
           </button>
           <button
-            onClick={() => navigate("/result")}
+            onClick={() => navigate("/result/0")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -314,16 +348,48 @@ const Header = ({ heading }) => {
                 <img src={leftArr} alt="" />
               </div>
             </div>
-          </button>
+          </button> */}
+          <p className="px-4 border-b-2"></p>
+
+          <div className="bg-white rounded-lg p-2 mx-1 shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center space-x-5">
+                <Wallet className="text-black w-5 h-5" />
+                <h3 className="text-md">My Wallet</h3>
+              </div>
+              <ChevronRight className="text-gray-500 w-5 h-5" />
+            </div>
+
+            <div className="bg-green-50 rounded-md p-3 flex items-center justify-between">
+              <span className="text-green-700 font-medium">Total Balance</span>
+              <div className="bg-green-100 px-2 py-1 rounded-full">
+                <span className="text-green-800 font-bold">10.00 Cr</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 mt-3">
+              <button className="w-full bg-blue-50 text-blue-600 py-2 rounded-md hover:bg-blue-100 transition-colors flex items-center justify-center">
+                <Wallet className="mr-2 w-4 h-4" />
+                Add Money
+              </button>
+
+              <button className="w-full bg-red-50 text-red-600 py-2 rounded-md hover:bg-red-100 transition-colors flex items-center justify-center">
+                <Download className="mr-2 w-4 h-4" />
+                Withdraw
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-3 w-full">
           <button
             onClick={() => {
-              // Clear user state and redirect to login
+              localStorage.removeItem("shopCoToken");
               navigate("/");
-              localStorage.removeItem("shopCoToken")
             }}
-            className="w-full py-2 text-left text-red-500    hover:bg-red-600 rounded-md px-4"
+            className="w-full flex items-center justify-center py-2 text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md px-4 transition-colors group"
           >
             Logout
+            <LogOut className="ml-2 w-5 h-5 text-red-500 group-hover:text-red-600 transition-colors" />
           </button>
         </div>
       </div>

@@ -14,10 +14,10 @@ class SocketService {
       return Promise.resolve(this.socket);
     }
 
-    console.log("Attempting socket connection...", { auctionId });
+    console.log("Attempting socket connection...", { auctionId, token });
 
     return new Promise((resolve, reject) => {
-      this.socket = io("http://localhost:3009", {
+      this.socket = io(this.SOCKET_URL, {
         auth: {
           token: token,
           "x-room-lobby": auctionId,
@@ -65,7 +65,6 @@ class SocketService {
     // console.log(this.socket.emit, "thisss");
 
     this.socket.emit(eventName, data, (response) => {
-      console.log(response, "res of emitter auction size");
       if (response?.success) {
         console.log(`Event "${eventName}" successfully handled by the server.`);
       } else {
@@ -96,7 +95,6 @@ class SocketService {
   }
 
   emitGetActivePlayer() {
-    console.log("Emitting getActive player....");
     this.socket.emit("getActivePlayer");
     // this.socket.on("activePlayerDetail", (playerData) => {
     //   console.log("Active Player Data:", playerData);
@@ -105,8 +103,21 @@ class SocketService {
   }
 
   emitGetPlayerCount() {
-    console.log("Emitting getPlayerCount");
     this.emit("playerCount");
+  }
+
+  // ---------------------------------------------------
+
+  onCurrentBids(callback) {
+    this.on("currentPlayerBids", (data) => {
+      callback(data);
+    });
+  }
+
+  onPlayerReAdded(callback) {
+    this.on("playerReAdded", (data) => {
+      callback(data);
+    });
   }
 
   // --------------------------------------------------
@@ -120,7 +131,6 @@ class SocketService {
 
   onUserDisconnected() {
     this.on("userDisconnected", () => {
-      console.log("User disconnected:");
       this.emitGetRoomSize();
     });
   }
@@ -139,7 +149,65 @@ class SocketService {
     });
   }
 
-  // -----------------------------
+  // ----------------------------
+
+  emitMarkPlayerUnsold(auctionPlayerId, auctionID) {
+    if (auctionID && auctionPlayerId) {
+      this.emit("reAddPlayer", { auctionPlayerId, auctionID });
+    }
+  }
+
+  emitPullBackPlayer(auctionID, auctionPlayerId) {
+    if (auctionID && auctionPlayerId) {
+      this.emit("pullBackPlayer", { auctionID, auctionPlayerId });
+    } else {
+      console.error("Provide auctionID && auctionPlayerId");
+    }
+  }
+
+  onPlayerPulledBack(callback) {
+    this.on("playerPulledBack", (data) => {
+      callback(data);
+    });
+  }
+
+  emitGetPlayerPurchasedCount() {
+    this.emit("getPlayerPurchasedCount");
+  }
+
+  onGetPlayerPurchasedCount(callback) {
+    this.on("PlayerPurchasedCount", (data) => {
+      callback(data);
+    });
+  }
+
+  // chat Room
+
+  sendChatMessage(text) {
+    if (text && text.length > 1) {
+      this.emit("sendChatMessage", {
+        message: text,
+      });
+    }
+  }
+
+  onReceiveChatMessage(callback) {
+    this.on("receiveChatMessage", (data) => {
+      callback(data);
+    });
+  }
+  
+  emitGetChatHistory(){
+    this.emit('getChatHistory');
+  }
+
+  onGetChatHistory(callback) {
+    this.on("chatHistory", (data) => {
+      callback(data);
+    });
+  }
+
+  //------------------------------------------
 
   onError(callback) {
     this.on("error", (error) => {
@@ -159,21 +227,18 @@ class SocketService {
 
   onActivePlayer(callback) {
     this.on("activePlayerDetail", (data) => {
-      console.log("Received active player details:", data);
       callback(data);
     });
   }
 
   onPlayerCount(callback) {
     this.on("playerCount", (data) => {
-      console.log("Received player count:", data);
       callback(data);
     });
   }
 
   onAskNewPlayer(callback) {
     this.on("askNewPlayer", () => {
-      console.log("Received request for a new player");
       this.emitGetActivePlayer();
       callback();
     });
@@ -182,12 +247,10 @@ class SocketService {
   // ----------------------------
 
   emitGetBudget() {
-    console.log("Emitting getBudget....");
     this.socket.emit("getBudget");
   }
 
   onBudgetUpdate(callback) {
-    console.log("Listening for onBudgetUpdate...");
     this.socket.on("budgetUpdate", callback);
   }
 

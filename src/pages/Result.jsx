@@ -89,34 +89,38 @@ const ResultCard = ({ team }) => (
   </div>
 );
 
+import { useParams } from "react-router-dom";
+
 const ResultPage = () => {
-  useEffect(() => {
-    const test1 = async () => {
-      try {
-        const response = await getAllUsers();
-        console.log(response.data, "test1");
-      } catch (error) {
-        console.error("Error fetching bid history:", error);
-      }
-    };
+  const { auctionId, userId } = useParams();
 
-    const test3 = async () => {
-      try {
-        const response = await fetchplayers();
-        console.log(response.data, "test3");
-      } catch (error) {
-        console.error("Error fetching bid history:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const test1 = async () => {
+  //     try {
+  //       const response = await getAllUsers();
+  //       console.log(response.data, "test1");
+  //     } catch (error) {
+  //       console.error("Error fetching bid history:", error);
+  //     }
+  //   };
 
-    test1();
-    test3();
-  }, []);
+  //   const test3 = async () => {
+  //     try {
+  //       const response = await fetchplayers();
+  //       console.log(response.data, "test3");
+  //     } catch (error) {
+  //       console.error("Error fetching bid history:", error);
+  //     }
+  //   };
+
+  //   test1();
+  //   test3();
+  // }, []);
 
   return (
     <>
       <div>
-        <Header heading={"Results"} />
+        <Header heading={`Results for Auction ${auctionId} and ${userId}`} />
       </div>
       <div className="bg-gray-100 min-h-screen p-4">
         <div className="max-w-md mx-auto">
