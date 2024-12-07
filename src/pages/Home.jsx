@@ -36,7 +36,7 @@ const Home = () => {
         },
     ]);
 
-    console.log("liveActions: ", liveAuctions);
+    // console.log("liveActions: ", liveAuctions);
 
     // Fetch auctions from API
     useEffect(() => {
@@ -65,7 +65,7 @@ const Home = () => {
     // Filter scheduled auctions by date range
     useEffect(() => {
         const { startDate, endDate } = dateRange[0];
-        console.log(startDate, endDate, "dates");
+        // console.log(startDate, endDate, "dates");
         if (!startDate || !endDate) {
             // Show all scheduled auctions when no date range is selected
             setFilteredScheduledAuctions(scheduledAuctions);

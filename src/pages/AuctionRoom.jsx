@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import PlayerCard from "../components/PlayerCard";
 import SocketService from "../socket/socketService";
 import TimerComponent from "../components/TimerComponent";
+import TeamsTab from "../components/teamTab";
 
 import { Eye, LogOut, PersonStanding } from "lucide-react";
 import {
@@ -26,6 +27,7 @@ import {
   getAuctionPlayersByID,
   getAllPLayersInAuction,
   clearBids,
+  getAllTeamsInAuction,
 } from "../api/fetch";
 
 const AuctionRoom = () => {
@@ -38,6 +40,7 @@ const AuctionRoom = () => {
   const auctionData = location?.state?.auction;
   const [error, setError] = useState(null);
   const [roomSize, setRoomSize] = useState(0);
+  const [hasNewNotificationArrived, setNewNotification] = useState(false);
 
   const [isConnected, setIsConnected] = useState(false);
   const [activePlayer, setActivePlayer] = useState(null);
@@ -50,7 +53,7 @@ const AuctionRoom = () => {
     auctionData?.auctionPlayers || []
   );
 
-  const [activeTab, setActiveTab] = useState("Your Team");
+  const [activeTab, setActiveTab] = useState("My Team");
   const [expandChat, setExpandChat] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -65,6 +68,31 @@ const AuctionRoom = () => {
 
   const [showPopup, setShowPopup] = useState(false);
 
+  // const [allTeams, setAllTeams] = useState([]);
+  const [teamMap, setTeamMap] = useState(undefined);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      if (!auctionId) return;
+      const res = await getAllTeamsInAuction(auctionId);
+      if (res) {
+        const mapOwnerToTeams = (data) => {
+          return data.reduce((acc, item) => {
+            const ownerId = item.owner.id;
+            if (!acc[ownerId]) {
+              acc[ownerId] = [];
+            }
+            acc[ownerId].push(item.name);
+            return acc;
+          }, {});
+        };
+        const map = mapOwnerToTeams(res.teams);
+        setTeamMap(map);
+      }
+    };
+    fetchTeams(auctionId);
+  }, [auctionId]);
+
   const handleJumpClick = () => {
     if (budget.remaining >= jump) {
       setShowPopup(true);
@@ -72,7 +100,7 @@ const AuctionRoom = () => {
   };
 
   const closePopup = () => {
-    setShowPopup(false); // Close the popup
+    setShowPopup(false);
   };
 
   useEffect(() => {
@@ -115,7 +143,8 @@ const AuctionRoom = () => {
 
   useEffect(() => {
     if (activePlayer?.id) {
-      const savedPullCounts = JSON.parse(localStorage.getItem("pullCounts")) || {};
+      const savedPullCounts =
+        JSON.parse(localStorage.getItem("pullCounts")) || {};
       setPullCount(
         savedPullCounts[activePlayer.id] || {
           total: 1,
@@ -194,10 +223,13 @@ const AuctionRoom = () => {
             await clearBids(auctionId, activePlayer.id);
           }
 
+          // console.log(res, "aaaaaaaaaaaaaaaaaaaaa");
+
           setActivePlayer((prevPlayer) => ({
             ...prevPlayer,
             ...res?.player,
             id: prevPlayer.id,
+            imageUrl: res?.imageUrl,
           }));
 
           setCurrentBids([]);
@@ -339,6 +371,10 @@ const AuctionRoom = () => {
         text: data.message,
         timestamp: new Date(data.timestamp),
       };
+      // console.log(data, "message aaya hai...");
+      if (data.userId !== userId) {
+        setNewNotification(true);
+      }
       setChats((prevChats) => [...prevChats, newChat]);
     });
 
@@ -406,6 +442,7 @@ const AuctionRoom = () => {
   // };
 
   const setupSocketConnection = async (token, auctionId) => {
+    console.log("Auction", token, auctionId);
     try {
       const response = await SocketService.connect(token, auctionId);
       console.log("Socket connection established:", response);
@@ -495,6 +532,8 @@ const AuctionRoom = () => {
     </div>
   );
 
+  // console.log("activePLare", activePlayer);
+
   return (
     <div className="flex flex-col h-dvh lg:h-screen">
       <Header heading={`Auction Room #${auctionId}`}>
@@ -512,9 +551,9 @@ const AuctionRoom = () => {
           <div className="rounded-lg p-4 mt-4 w-full flex justify-center relative">
             <div className="absolute top-0 left-10">
               <img
-                src={activePlayer?.stats?.imgLink}
-                alt="Player"
-                className="w-36 h-36 rounded-full border-4 border-gray-200"
+                src={activePlayer?.imageUrl}
+                alt="Player Image"
+                className="w-36 h-36 rounded-full border-4 border-gray-200 bg-zinc-300"
               />
             </div>
 
@@ -767,7 +806,7 @@ const AuctionRoom = () => {
 
             {isExpanded && (
               <div className="flex w-full gap-2 justify-center pb-2 rounded-lg px-4 py-2">
-                {["Your Team", "Sold Players", "Upcoming"].map((tab) => (
+                {["My Team", "Teams", "Upcoming"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -786,7 +825,7 @@ const AuctionRoom = () => {
 
             {isExpanded && (
               <div className="h-full my-2 py-4">
-                {activeTab === "Your Team" && (
+                {activeTab === "My Team" && (
                   <div className="overflow-y-auto h-[75%] rounded-lg">
                     {(() => {
                       const yourTeamPlayers = auctionPlayers
@@ -808,7 +847,7 @@ const AuctionRoom = () => {
                       return yourTeamPlayers.map((item, index) => (
                         <div key={item.auctionPlayerId} className="px-4">
                           <PlayerCard
-                            tabType={"Your Team"}
+                            tabType={"My Team"}
                             item={item}
                             index={index}
                             ongoingPlayerID={activePlayerId}
@@ -816,6 +855,7 @@ const AuctionRoom = () => {
                             idToUsernameMap={participantMap}
                             pullCount={pullCount}
                             setPullCount={setPullCount}
+                            teamMap={teamMap}
                           />
                         </div>
                       ));
@@ -823,37 +863,16 @@ const AuctionRoom = () => {
                   </div>
                 )}
 
-                {activeTab === "Sold Players" && (
-                  <div className="overflow-y-auto h-[75%] rounded-lg">
-                    {(() => {
-                      const soldPlayers = auctionPlayers.filter(
-                        (item) => item?.status === "sold"
-                      );
-
-                      if (soldPlayers.length === 0) {
-                        return (
-                          <div className="text-center py-4">
-                            No sold players
-                          </div>
-                        );
-                      }
-
-                      return soldPlayers.map((item, index) => (
-                        <div key={item.auctionPlayerId} className="px-4">
-                          <PlayerCard
-                            tabType={"Sold Players"}
-                            item={item}
-                            index={index}
-                            ongoingPlayerID={activePlayerId}
-                            currentUserID={userId}
-                            idToUsernameMap={participantMap}
-                            pullCount={pullCount}
-                            setPullCount={setPullCount}
-                          />
-                        </div>
-                      ));
-                    })()}
-                  </div>
+                {activeTab === "Teams" && (
+                  <TeamsTab
+                    auctionPlayers={auctionPlayers}
+                    activePlayerId={activePlayerId}
+                    userId={userId}
+                    participantMap={participantMap}
+                    pullCount={pullCount}
+                    setPullCount={setPullCount}
+                    teamMap={teamMap}
+                  />
                 )}
 
                 {activeTab === "Upcoming" && (
@@ -872,6 +891,7 @@ const AuctionRoom = () => {
                               idToUsernameMap={participantMap}
                               pullCount={pullCount}
                               setPullCount={setPullCount}
+                              teamMap={teamMap}
                             />
                           </div>
                         );
@@ -926,6 +946,7 @@ const AuctionRoom = () => {
                           idToUsernameMap={participantMap}
                           pullCount={pullCount}
                           setPullCount={setPullCount}
+                          teamMap={teamMap}
                         />
                       </div>
                     );
@@ -1036,15 +1057,19 @@ const AuctionRoom = () => {
               New
             </button>
             <button
-              className="w-10 h-10 bg-green-100 text-green-400 rounded-full flex items-center justify-center hover:bg-green-200 border-green-400 border text-xs"
+              className="w-10 h-10 relative bg-green-100 text-green-400 rounded-full flex items-center justify-center hover:bg-green-200 border-green-400 border text-xs"
               onClick={() => {
                 setExpandChat(!expandChat);
                 setIsExpanded(false);
                 setExpandPullBack(false);
                 setEditJump(false);
+                setNewNotification(false);
               }}
             >
               Chat
+              {hasNewNotificationArrived && (
+                <span className="inline-block absolute -top-1 left-0 bg-red-600 w-3 h-3 rounded-full"></span>
+              )}
             </button>
           </div>
         </div>
@@ -1106,7 +1131,7 @@ const AuctionRoom = () => {
                   }
                 >
                   <PersonStanding size={20} />
-                  Your Team
+                  My Team
                 </button>
               </div>
             ) : (

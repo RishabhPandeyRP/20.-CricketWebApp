@@ -1,98 +1,3 @@
-// import bellIcon from "../assets/bellIcon.svg";
-// import rightArr from "../assets/rightArrWhite.svg";
-// import { useNavigate, useLocation } from 'react-router-dom';
-// import { useSelector } from 'react-redux';
-// import { useState } from "react";
-
-// const Header = ({heading})=>{
-//     const navigate = useNavigate();
-//     const location = useLocation();
-//     const { username, token, userId } = useSelector((state) => state.user);
-//     const { auction } = location.state;
-
-//     // State for sidebar visibility
-//     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-//     // Toggle sidebar visibility
-//     const toggleSidebar = () => {
-//         setIsSidebarOpen((prev) => !prev);
-//     };
-
-//     return(
-//         <div>
-//             <div className='w-full h-[65px] border border-black bg-[#1F41BB] flex justify-between items-center px-4'>
-//                 <div>
-//                     <img src={rightArr} alt="" className="w-[20px] h-[25px]" onClick={() => navigate(-1)} />
-//                 </div>
-//                 <div className='font-medium text-[16px] text-white'>
-//                     {heading}
-//                 </div>
-
-//                 <div className='flex justify-center items-center gap-6'>
-//                     <div>
-//                         <img src={bellIcon} alt="Notifications" />
-//                     </div>
-//                     <div className='border border-white w-[30px] h-[30px] rounded-full flex justify-center items-center text-white font-medium text-[16px]' onClick={toggleSidebar}>
-//                         <div>{username.split(" ")[0].split("")[0].toUpperCase()}</div>
-//                     </div>
-//                 </div>
-//             </div>
-
-//             {/* Sidebar */}
-//             {isSidebarOpen && (
-//                 <div className="fixed top-0 right-0 w-[250px] h-full bg-[#1F41BB] shadow-lg z-50 flex flex-col text-white">
-//                     {/* Close Button */}
-//                     <div className="p-4 flex justify-end">
-//                         <button
-//                             className="text-white font-bold text-lg"
-//                             onClick={toggleSidebar}
-//                         >
-//                             ✕
-//                         </button>
-//                     </div>
-
-//                     {/* Sidebar Features */}
-//                     <div className="flex flex-col gap-4 px-4">
-//                         <div className="border-b border-gray-300 pb-2">
-//                             <div className="text-lg font-semibold">Hello, {username.split(" ")[0]}</div>
-//                             <div className="text-sm text-gray-200">Profile ID: {username}</div>
-//                         </div>
-//                         <button
-//                             onClick={() => navigate('/profile')}
-//                             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-2"
-//                         >
-//                             View Profile
-//                         </button>
-//                         <button
-//                             onClick={() => navigate('/settings')}
-//                             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-2"
-//                         >
-//                             Account Settings
-//                         </button>
-//                         <button
-//                             onClick={() => navigate('/notifications')}
-//                             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-2"
-//                         >
-//                             Notifications
-//                         </button>
-//                         <button
-//                             onClick={() => {
-//                                 // Clear user state and redirect to login
-//                                 navigate('/logout');
-//                             }}
-//                             className="w-full py-2 text-left hover:bg-red-600 rounded-md px-2"
-//                         >
-//                             Logout
-//                         </button>
-//                     </div>
-//                 </div>
-//             )}
-//         </div>
-//     )
-// }
-
-// export default Header;
-
 import { useEffect, useState } from "react";
 import bellIcon from "../assets/bellIcon.svg";
 import rightArr from "../assets/rightArrWhite.svg";
@@ -106,19 +11,32 @@ import leftArr from "../assets/leftArr.png";
 import whatsapp from "../assets/whatsapp.svg";
 import user from "../assets/user (2).png";
 import { Wallet, ChevronRight, Download, LogOut } from "lucide-react";
+import { getWalletBalance } from "../api/fetch";
 
 const Header = ({ heading }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { userId } = useSelector((state) => state.user);
   const { username } = useSelector((state) => state.user);
-
-  // State for sidebar visibility
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [balance, setBalance] = useState(0);
 
-  // Toggle sidebar visibility
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
+
+  const fetchWalletData = async (userId) => {
+    try {
+      const balanceRes = await getWalletBalance(userId);
+      setBalance(balanceRes.balance);
+    } catch (error) {
+      console.error("Failed to fetch wallet data", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWalletData(userId);
+  }, [isSidebarOpen, userId]);
 
   return (
     <div>
@@ -162,24 +80,13 @@ const Header = ({ heading }) => {
         ></div>
       )}
 
-      {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 flex flex-col justify-between transition-transform duration-300 text-black ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-[100%]"
         }`}
         style={{ width: "300px" }}
       >
-        {/* Close Button */}
-        {/* <div className="p-4 flex justify-end">
-                    <button
-                        className=" font-bold text-lg"
-                        onClick={toggleSidebar}
-                    >
-                        ✕
-                    </button>
-                </div> */}
-
-        {/* Sidebar Features */}
+       
         <div className="flex flex-col gap-4 px-0  border-green-500">
           <div className="border-b border-gray-300 px-3 py-4 bg-[rgb(31,65,187)] flex  items-center gap-5 justify-around">
             <div className="w-[50px] h-[50px] rounded-full border border-white justify-center items-center flex bg-white">
@@ -198,6 +105,7 @@ const Header = ({ heading }) => {
               </button>
             </div>
           </div>
+
           <button
             onClick={() => navigate("/profile")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
@@ -214,7 +122,7 @@ const Header = ({ heading }) => {
             </div>
           </button>
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/my-auctions")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -232,7 +140,7 @@ const Header = ({ heading }) => {
           <p className="px-4 border-b-2"></p>
 
           <button
-            onClick={() => navigate("/rules")}
+            onClick={() => navigate("/how-to-play")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -246,7 +154,7 @@ const Header = ({ heading }) => {
             </div>
           </button>
           <button
-            onClick={() => navigate("/rules")}
+            onClick={() => navigate("/how-to-register")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -261,8 +169,24 @@ const Header = ({ heading }) => {
           </button>
           <p className="px-4 border-b-2"></p>
 
+         
           <button
-            onClick={() => navigate("/tnc")}
+            onClick={() => navigate("/privacy-policy")}
+            className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex justify-center items-center gap-5">
+                <img src={privacy} alt="" />
+                <div>Privacy Policy</div>
+              </div>
+              <div>
+                <img src={leftArr} alt="" />
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => navigate("/terms-and-conditions")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
             <div className="flex justify-between items-center">
@@ -275,22 +199,8 @@ const Header = ({ heading }) => {
               </div>
             </div>
           </button>
-          <button
-            onClick={() => navigate("/privacy")}
-            className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex justify-center items-center gap-5">
-                <img src={privacy} alt="" />
-                <div>Privacy</div>
-              </div>
-              <div>
-                <img src={leftArr} alt="" />
-              </div>
-            </div>
-          </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/refer")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
@@ -303,11 +213,9 @@ const Header = ({ heading }) => {
                 <img src={leftArr} alt="" />
               </div>
             </div>
-          </button>
+          </button> */}
 
-          {/* <p className="px-4 border-b-2">Test Pages</p>
-
-          <button
+          {/* <button
             onClick={() => navigate("/bidhistory")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
@@ -320,8 +228,8 @@ const Header = ({ heading }) => {
                 <img src={leftArr} alt="" />
               </div>
             </div>
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={() => navigate("/teampage/0/0")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
@@ -334,8 +242,9 @@ const Header = ({ heading }) => {
                 <img src={leftArr} alt="" />
               </div>
             </div>
-          </button>
-          <button
+          </button> */}
+
+          {/* <button
             onClick={() => navigate("/result/0")}
             className="w-full py-2 text-left hover:bg-blue-700 rounded-md px-4"
           >
@@ -349,10 +258,14 @@ const Header = ({ heading }) => {
               </div>
             </div>
           </button> */}
+
           <p className="px-4 border-b-2"></p>
 
           <div className="bg-white rounded-lg p-2 mx-1 shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
+            <div
+              className="flex justify-between items-center mb-4"
+              onClick={() => navigate("/myWallet")}
+            >
               <div className="flex items-center space-x-5">
                 <Wallet className="text-black w-5 h-5" />
                 <h3 className="text-md">My Wallet</h3>
@@ -363,17 +276,29 @@ const Header = ({ heading }) => {
             <div className="bg-green-50 rounded-md p-3 flex items-center justify-between">
               <span className="text-green-700 font-medium">Total Balance</span>
               <div className="bg-green-100 px-2 py-1 rounded-full">
-                <span className="text-green-800 font-bold">10.00 Cr</span>
+                <span className="text-green-800 font-bold">{balance}</span>
               </div>
             </div>
 
             <div className="space-y-3 mt-3">
-              <button className="w-full bg-blue-50 text-blue-600 py-2 rounded-md hover:bg-blue-100 transition-colors flex items-center justify-center">
+              <button
+                className="w-full bg-blue-50 text-blue-600 py-2 rounded-md hover:bg-blue-100 transition-colors flex items-center justify-center"
+                onClick={() => {
+                  navigate("/myWallet");
+                  setIsSidebarOpen(!isSidebarOpen);
+                }}
+              >
                 <Wallet className="mr-2 w-4 h-4" />
                 Add Money
               </button>
 
-              <button className="w-full bg-red-50 text-red-600 py-2 rounded-md hover:bg-red-100 transition-colors flex items-center justify-center">
+              <button
+                className="w-full bg-red-50 text-red-600 py-2 rounded-md hover:bg-red-100 transition-colors flex items-center justify-center"
+                onClick={() => {
+                  navigate("/myWallet");
+                  setIsSidebarOpen(!isSidebarOpen);
+                }}
+              >
                 <Download className="mr-2 w-4 h-4" />
                 Withdraw
               </button>

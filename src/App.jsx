@@ -1,4 +1,5 @@
 import React from "react";
+import { Suspense, lazy } from "react";
 import LoginPage from "./pages/Login";
 import { Routes, Route } from "react-router-dom";
 import SignUp from "./pages/SignUp";
@@ -14,14 +15,21 @@ import SuccessRegister from "./pages/SuccessfulRegistration";
 import MyProfile from "./pages/MyProfile";
 import AuctionHome from "./pages/AuctionHome";
 
+import AuctionRoom from "./pages/AuctionRoom";
+import BidHistory from "./pages/BidHistory";
+import ResultPage from "./pages/Result";
+import YourTeamPlayers from "./pages/AuctionResult/YourTeamPlayers";
 
-import AuctionRoom from './pages/AuctionRoom';
-import BidHistory from './pages/BidHistory';
-import ResultPage from './pages/Result';
-import YourTeamPlayers from "./pages/AuctionResult/YourTeamPlayers"
+import Play from "./pages/StaticPages/Play";
+import Pay from "./pages/StaticPages/pay";
+import Withdraw from "./pages/StaticPages/Withdraw";
+import Privacy from "./pages/StaticPages/Privacy";
+import Terms from "./pages/StaticPages/Terms";
 
-import Teams from './pages/TeamsPage';
-import TestExcel from './pages/TestExcel';
+import MyWallet from "./pages/MyWallet";
+import MyAuctions from "./pages/MyAuctions";
+import TeamsPage from "./pages/TeamsPage";
+const Admin = lazy(() => import("./admin"));
 
 function App() {
   return (
@@ -42,12 +50,36 @@ function App() {
 
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/bidhistory" element={<BidHistory></BidHistory>} />
-        <Route path="/yourTeamPlayers/:auctionId/:userId" element={<YourTeamPlayers></YourTeamPlayers>} />
+        <Route
+          path="/yourTeamPlayers/:auctionId/:userId"
+          element={<YourTeamPlayers></YourTeamPlayers>}
+        />
         <Route path="/result/:auctionId" element={<ResultPage />} />
 
         <Route path="/auctionHome" element={<AuctionHome />} />
         <Route path="/auction-room" element={<AuctionRoom />} />
-        <Route path="/excel-upload" element={<TestExcel></TestExcel>} />
+
+        <Route path="/how-to-play" element={<Play />} />
+        <Route path="/how-to-register" element={<Pay />} />
+        <Route path="/how-to-withdraw" element={<Withdraw />} />
+        <Route path="/privacy-policy" element={<Privacy />} />
+        <Route path="/terms-and-conditions" element={<Terms />} />
+        <Route path="/my-auctions" element={<MyAuctions />} />
+
+        <Route path="/teamPage/:auctionId/:userId" element={<TeamsPage />} />
+
+
+
+        <Route path="/myWallet" element={<MyWallet />} />
+
+        <Route
+          path="/admin/*"
+          element={
+            <Suspense fallback={<div>Loading Admin Panel...</div>}>
+              <Admin />
+            </Suspense>
+          }
+        />
       </Routes>
       <Toaster></Toaster>
     </div>

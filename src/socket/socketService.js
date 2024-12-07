@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 class SocketService {
   constructor() {
     this.socket = null;
-    this.SOCKET_URL = "http://localhost:3009";
+    this.SOCKET_URL = "https://expressbackend-production-b19c.up.railway.app";
   }
 
   // ------------------------------------------------
@@ -196,9 +196,9 @@ class SocketService {
       callback(data);
     });
   }
-  
-  emitGetChatHistory(){
-    this.emit('getChatHistory');
+
+  emitGetChatHistory() {
+    this.emit("getChatHistory");
   }
 
   onGetChatHistory(callback) {

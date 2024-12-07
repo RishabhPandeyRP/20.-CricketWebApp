@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SocketService from "../socket/socketService";
 import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const PlayerCard = ({
   tabType,
@@ -12,10 +13,12 @@ const PlayerCard = ({
   idToUsernameMap,
   pullCount,
   setPullCount,
+  teamMap,
 }) => {
   const location = useLocation();
   const auctionId = location?.state?.auction?.id;
-  // console.log(idToUsernameMap, "hiiii");
+
+  console.log(idToUsernameMap)
 
   return (
     <div className="w-full shadow-custom-card bg-white px-4 py-2 my-2 rounded-xl flex items-center gap-4 justify-between ">
@@ -55,7 +58,7 @@ const PlayerCard = ({
               <p>
                 Sold to{" "}
                 {item?.highestBidderId === currentUserID
-                  ? `You`
+                  ? "Me"
                   : idToUsernameMap[item?.highestBidderId]}{" "}
               </p>
             ) : item?.status === "available" ? (
